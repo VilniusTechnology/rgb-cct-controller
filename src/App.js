@@ -3,7 +3,7 @@ import './App.css'
 import './index.css'
 
 import axios from 'axios'
-import { SketchPicker } from 'react-color';
+// import { SketchPicker } from 'react-color';
 
 import ReactDOM from 'react-dom';
 import Slider, { Range } from 'rc-slider';
@@ -32,7 +32,19 @@ class App extends Component {
       reading: ''
     }
 
+    this.state.colours = {};
+    this.state.colours.white = 210;
+    this.state.colours.yellow = 220;
+    this.state.colours.red = 230;
+    this.state.colours.green = 240;
+    this.state.colours.blue = 250;
+
+
     this.handleClick = this.handleClick.bind(this)
+  }
+
+  onSliderChange = (value) => {
+    console.log(this.state.colours.white);
   }
 
   handleClick () {
@@ -77,10 +89,9 @@ class App extends Component {
 
 
         <div>
-          <Slider 
-
-              defaultValue={50} 
-              min={0} 
+          <Slider defaultValue={this.state.colours.white}
+              onAfterChange={this.onAfterChange}
+              min={0}
               max={255}
 
               handleStyle={{
@@ -93,18 +104,16 @@ class App extends Component {
                       }}
               railStyle={{ backgroundColor: 'white', height: 10 }}
               trackStyle={{ backgroundColor: 'white', height: 10 }}
-
-              onAfterChange={this.onAfterChange}
            />
            <br/><br/>
            <div></div>
         </div>
 
         <div>
-          <Slider 
+          <Slider
 
-              defaultValue={50} 
-              min={0} 
+              defaultValue={this.state.colours.yellow}
+              min={0}
               max={255}
 
               handleStyle={{
@@ -125,10 +134,10 @@ class App extends Component {
         </div>
 
         <div>
-          <Slider 
+          <Slider
 
-              defaultValue={50} 
-              min={0} 
+              defaultValue={this.state.colours.red}
+              min={0}
               max={255}
 
               handleStyle={{
@@ -147,14 +156,13 @@ class App extends Component {
            <br/><br/>
            <div></div>
         </div>
-        
-        
+
 
         <div>
-          <Slider 
+          <Slider
 
-              defaultValue={50} 
-              min={0} 
+              defaultValue={this.state.colours.green}
+              min={0}
               max={255}
 
               handleStyle={{
@@ -173,14 +181,14 @@ class App extends Component {
            <br/><br/>
            <div></div>
         </div>
-        
-        
+
+
 
       <div>
-        <Slider 
+        <Slider
 
-              defaultValue={50} 
-              min={0} 
+              defaultValue={this.state.colours.blue}
+              min={0}
               max={255}
 
               handleStyle={{
@@ -199,7 +207,7 @@ class App extends Component {
 
         </div>
 
-        
+
 
         <div className='button__container'>
           <p>P1: {this.state.PARAM01}</p>
