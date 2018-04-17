@@ -12,12 +12,33 @@ body {
   text-align: right;
   font-weight: lighter;
   min-height: 18px;
-  color: #ffffff;
   font-size: 50px;
+}
+
+.left-div-white {
+  color: #ffffff;
+}
+
+.left-div-yellow {
+  color: yellow;
+}
+
+.left-div-red {
+  color: red;
+}
+
+.left-div-green {
+  color: green;
+}
+
+.left-div-blue {
+  color: blue;
 }
 
 .right-div {
   padding-top: 25px;
+  padding-left: 10px;
+  padding-right: 25px;
   width: 90%;
   float: right;
 }
