@@ -1,19 +1,29 @@
-import React, { Component } from 'react'
-import axios from 'axios'
+import React, { Component } from 'react';
 import Slider from 'rc-slider';
-import $ from "jquery";
 
-import { Button } from 'react-bootstrap';
-import { ButtonToolbar } from 'react-bootstrap';
-import { ToggleButtonGroup } from 'react-bootstrap';
-import { ToggleButton } from 'react-bootstrap';
-
-import { network } from './libs/http.js';
+import { Http } from './libs/http.js';
 import { sliders } from './libs/sliders.js';
 
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
-import './App.css'
-import './index.css'
+import './App.css';
+import './index.css';
+
+import PropTypes from 'prop-types';
+import { withStyles } from 'material-ui/styles';
+import Radio, { RadioGroup } from 'material-ui/Radio';
+import { FormControl, FormControlLabel } from 'material-ui/Form';
+
+const styles = theme => ({
+  root: {
+    height: `50 px`
+  },
+  formControl: {
+    margin: theme.spacing.unit * 3,
+  },
+  group: {
+    margin: `${theme.spacing.unit}px 0`,
+  },
+});
 
 class App extends Component {
 
@@ -25,214 +35,107 @@ class App extends Component {
 
     this.state = {
       reading: 0,
-      ledState: 0,
-      ledMode: 2,
-    }
-
-    this.state.getDataOnly = 1;
+      ledState: "1",
+      ledMode: "1",
+    };
 
     this.state.colours  = {};
-    this.state.colours.white = 255;
-    this.state.colours.yellow = 255;
-    this.state.colours.red = 255;
-    this.state.colours.green = 255;
-    this.state.colours.blue = 255;
+    this.state.colours.white = 0;
+    this.state.colours.yellow = 0;
+    this.state.colours.red = 0;
+    this.state.colours.green = 0;
+    this.state.colours.blue = 0;
 
     document.body.style.backgroundColor = "#63ccff";
 
-    console.log('State INIT: ', this.state);
-
+    this.container = {};
   }
 
   componentDidMount = () => {
     document.title = "RGB CCT Controller";
-    this.updateControllerInit();
-    this.updateSlidersState();
-    // this.interval = setInterval(this.updateController, 25000);
-  }
 
-  updateColoursReadingsAndSliders = (data) => {
-    // console.log(data);
-    this.setState(
-      {
-        reading: data.reading,
+    const sliderz = new sliders();
+    sliderz.setState(this);
 
-        colours: {
-          white: data.coldWhite,
-          yellow: data.warmWhite,
-          red: data.red,
-          green: data.green,
-          blue: data.blue,
-        },
+    this.container.sliders = sliderz;
 
-        ledState: data.ledState,
-        ledMode: data.ledMode,
-      }
-    );
+    const network = new Http();
+    network.setCallback('updateSlidersGroup', sliderz);
 
-    this.whiteSlider.state.value = data.coldWhite;
-    this.yellowSlider.state.value = data.warmWhite;
+    this.container.network = network;
 
-    this.redSlider.state.value = data.red;
-    this.greenSlider.state.value = data.green;
-    this.blueSlider.state.value = data.blue;
-  }
+    network.setState(this);
 
-  getAllData() {
-    let values = {
-      "1": 1,
-      "2": 1,
-      "3": this.whiteSlider.state.value,
-      "4": this.yellowSlider.state.value,
-      "5": this.redSlider.state.value,
-      "6": this.greenSlider.state.value,
-      "7": this.blueSlider.state.value,
-    };
-
-    console.log('Values to send: ', values);
-
-    console.log('State getAllData: ', this);
-
-    return values;
-  }
-
-  parseData(data) {
-    console.log("data from server", data.data);
-    this.setState(
-      {
-        reading: data.data.reading,
-        ledState: data.data.ledState,
-        ledMode: data.data.ledMode,
-      }
-    );
-
-    this.updateColoursReadingsAndSliders(data.data);
-
-    this.ledState = data.data.ledState;
-    this.ledMode = data.data.ledMode;
-
-    console.log('State parseData: ', this.state);
-  }
-
-
-
-  updateController = () => {
-    this.state.getDataOnly = 0;
-    let data = this.getAllData();
-    this.performRequest(data);
-  }
-
-  updateControllerInit = () => {
     let data = {
       "1": "3"
     };
-    this.performRequest(data);
+    network.performRequest(data);
+
+    // this.interval = setInterval(this.updateController, 25000);
   }
 
-  updateSlidersState = () => {
-
-    let freshColours = {};
-    freshColours.white = this.whiteSlider.state.value;
-    freshColours.yellow = this.yellowSlider.state.value;
-
-    freshColours.red = this.redSlider.state.value;
-    freshColours.green = this.greenSlider.state.value;
-    freshColours.blue = this.blueSlider.state.value;
-
-    this.setState({colours: freshColours});
+  onAfterSliderChange = (value) => {
+    this.container.network.getStateAndPerformRequest();
   }
 
-  onAfterChange = (value) => {
-    this.updateController();
-    this.updateSlidersState();
-  }
+  handleChangeLedState = event => {
+    console.log(event.target.value);
+    this.setState({ ledState: event.target.value });
+    this.state.ledState = event.target.value;
+    console.log(this.state);
 
-  handleLedStateChange = (value) => {
-    // this.state.ledState = value;
+    this.container.network.getStateAndPerformRequest();
+  };
 
-    this.setState(
-      {
-        ledState: value,
-      }
-    );
+  handleChangeLedMode = event => {
+    this.setState({ ledMode: event.target.value });
+    this.state.ledMode = event.target.value;
+    console.log(this.state);
 
-    this.updateController();
-    // console.log(this.state);
-  }
+    this.container.network.getStateAndPerformRequest();
+  };
 
-  handleLedModeChange = (value) => {
-    // this.state.ledMode = value;
-
-    this.setState(
-      {
-        ledMode: value,
-      }
-    );
-
-    this.updateController();
-    // console.log(this.state);
-  }
-
-  performRequest = (data) => {
-      let getString = this.dataToString(data);
-      // console.log(getString);
-
-      var url = 'http://192.168.1.46/?&';
-      // var url = 'http://127.0.0.1/?&';
-
-      axios.get(url + getString + '|')
-        .then(response => this.parseData(response))
-  }
-
-  dataToString = (data) => {
-      // console.log(data);
-      return this.join(data, "=", "&");
-  }
-
-  join = (object, glue, separator) => {
-    var object = object;
-    if (glue == undefined) {
-      glue = '=';
-    }
-    if (separator == undefined) {
-      separator = ',';
-    }
-    return $.map(Object.getOwnPropertyNames(object), function(k) { return [k, object[k]].join(glue) }).join(separator);
-  }
 
   render () {
+    // let that = this;
+    // setTimeout(function(){that.updateController()}, 5);
 
-      let that = this;
-      // setTimeout(function(){that.updateController()}, 5);
+    const { classes } = this.props;
 
     return (
       <div>
         <div>
-          <ButtonToolbar>
-            <ToggleButtonGroup type="radio" name="ledState"
+          <FormControl component="fieldset" required className={classes.formControl}>
+            <RadioGroup style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
+              aria-label="ledState"
+              name="ledState"
+              value={this.state.ledState}
+              onChange={this.handleChangeLedState}
+            >
+              <FormControlLabel value="0" control={<Radio color="primary" />}  label="OFF"/>
+              <FormControlLabel value="1" control={<Radio color="primary" />} label="ON" />
 
-              ref={(input) => { this.ledState = input; }}
-
-              defaultValue={0}
-              onChange={this.handleLedStateChange}>
-                <ToggleButton value={1}>ON</ToggleButton>
-                <ToggleButton value={0}>OFF</ToggleButton>
-            </ToggleButtonGroup>
-          </ButtonToolbar>
+            </RadioGroup>
+          </FormControl>
         </div>
 
+
         <div>
-          <ButtonToolbar>
-            <ToggleButtonGroup type="radio" name="ledMode"
+          <FormControl component="fieldset" required className={classes.formControl}>
+            <RadioGroup style={{display: 'flex', flexDirection: 'row', justifyContent: 'space-between'}}
+              aria-label="ledMode"
+              name="ledMode"
+              value={this.state.ledMode}
+              onChange={this.handleChangeLedMode}
+            >
 
-            ref={(input) => { this.ledMode = input; }}
+              <FormControlLabel value="0" control={<Radio color="primary" />}  label="AUTO"/>
+              <FormControlLabel value="1" control={<Radio color="primary" />} label="MANUAL" />
+              <FormControlLabel value="2" control={<Radio color="primary" />} label="TIMED" />
+              <FormControlLabel value="3" control={<Radio color="primary" />} label="SHOW" />
 
-            defaultValue={2} onChange={this.handleLedModeChange}>
-              <ToggleButton value={0}>ADAPTIVE</ToggleButton>
-              <ToggleButton value={2}>MANUAL</ToggleButton>
-              <ToggleButton value={3}>DEMO</ToggleButton>
-            </ToggleButtonGroup>
-          </ButtonToolbar>
+            </RadioGroup>
+          </FormControl>
         </div>
 
         <div className="light-level-reading-container">
@@ -251,7 +154,7 @@ class App extends Component {
 
                 defaultValue={this.state.colours.white}
 
-                onAfterChange={this.onAfterChange}
+                onAfterChange={this.onAfterSliderChange}
                 min={0}
                 max={255}
 
@@ -291,7 +194,7 @@ class App extends Component {
                 railStyle={{ backgroundColor: 'yellow', height: 10 }}
                 trackStyle={{ backgroundColor: 'yellow', height: 10 }}
 
-                onAfterChange={this.onAfterChange}
+                onAfterChange={this.onAfterSliderChange}
              />
            </div>
            <div style={{clear: 'both'}}></div>
@@ -318,7 +221,7 @@ class App extends Component {
                 railStyle={{ backgroundColor: 'red', height: 10 }}
                 trackStyle={{ backgroundColor: 'red', height: 10 }}
 
-                onAfterChange={this.onAfterChange}
+                onAfterChange={this.onAfterSliderChange}
              />
            </div>
            <div style={{clear: 'both'}}></div>
@@ -346,7 +249,7 @@ class App extends Component {
                 railStyle={{ backgroundColor: 'green', height: 10 }}
                 trackStyle={{ backgroundColor: 'green', height: 10 }}
 
-                onAfterChange={this.onAfterChange}
+                onAfterChange={this.onAfterSliderChange}
              />
            </div>
            <div style={{clear: 'both'}}></div>
@@ -373,7 +276,7 @@ class App extends Component {
                   railStyle={{ backgroundColor: 'blue', height: 10 }}
                   trackStyle={{ backgroundColor: 'blue', height: 10 }}
 
-                  onAfterChange={this.onAfterChange}
+                  onAfterChange={this.onAfterSliderChange}
                />
            </div>
            <div style={{clear: 'both'}}></div>
@@ -384,5 +287,8 @@ class App extends Component {
   }
 }
 
+App.propTypes = {
+  classes: PropTypes.object.isRequired,
+};
 
-export default App
+export default withStyles(styles) (App)
