@@ -170,7 +170,7 @@ class App extends Component {
                 trackStyle={{ backgroundColor: 'white', height: 10 }}
              />
            </div>
-           <div style={{clear: 'both'}}></div>
+           <div style={{clear: 'both'}}> </div>
         </div>
 
         <div>
@@ -197,7 +197,7 @@ class App extends Component {
                 onAfterChange={this.onAfterSliderChange}
              />
            </div>
-           <div style={{clear: 'both'}}></div>
+           <div style={{clear: 'both'}}> </div>
         </div>
 
         <div>
@@ -224,7 +224,7 @@ class App extends Component {
                 onAfterChange={this.onAfterSliderChange}
              />
            </div>
-           <div style={{clear: 'both'}}></div>
+           <div style={{clear: 'both'}}> </div>
         </div>
 
 
@@ -252,7 +252,7 @@ class App extends Component {
                 onAfterChange={this.onAfterSliderChange}
              />
            </div>
-           <div style={{clear: 'both'}}></div>
+           <div style={{clear: 'both'}}> </div>
         </div>
 
         <div>
@@ -279,7 +279,7 @@ class App extends Component {
                   onAfterChange={this.onAfterSliderChange}
                />
            </div>
-           <div style={{clear: 'both'}}></div>
+           <div style={{clear: 'both'}}> </div>
         </div>
 
       </div>
