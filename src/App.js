@@ -67,11 +67,11 @@ class App extends Component {
     network.setState(this);
 
     let data = {
-      "1": "3"
+      "state": "3"
     };
     network.performRequest(data);
 
-    // this.interval = setInterval(this.updateController, 25000);
+    //this.interval = setInterval(this.updateController, 25000);
   }
 
   onAfterSliderChange = (value) => {
